@@ -78,7 +78,7 @@ colors: [
   Colors.orange.shade400,
   Colors.orange.shade300,
   Colors.orange.shade200,
-  Colors.white
+  Colors.white70
 ],
 
                 ),
