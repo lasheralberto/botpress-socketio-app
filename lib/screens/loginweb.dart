@@ -97,62 +97,62 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
                         ),
                         SizedBox(height: 10),
                       ],
-                      TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Correo Electrónico',
-                          prefixIcon: Icon(Icons.email),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      SizedBox(
+                        width: 300,
+                        child: TextField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: 'Correo Electrónico',
+                            prefixIcon: Icon(Icons.email),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
+                          keyboardType: TextInputType.emailAddress,
                         ),
-                        keyboardType: TextInputType.emailAddress,
                       ),
                       SizedBox(height: 20),
-                      TextField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: 'Contraseña',
-                          prefixIcon: Icon(Icons.lock),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      SizedBox(
+                        width: 300,
+                        child: TextField(
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            labelText: 'Contraseña',
+                            prefixIcon: Icon(Icons.lock),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
+                          obscureText: true,
                         ),
-                        obscureText: true,
                       ),
                       SizedBox(height: 30),
-                      ElevatedButton(
-                        onPressed: _login,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          child: Center(
-                            child: Text(
-                              'Iniciar Sesión',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
+                      SizedBox(
+                        width: 300,
+                        child: ElevatedButton(
+                          onPressed: _login,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Center(
+                              child: Text(
+                                'Iniciar Sesión',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(
-                              double.infinity, 50), // Botón ocupa todo el ancho
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(double.infinity,
+                                50), // Botón ocupa todo el ancho
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                       ),
                       SizedBox(height: 20),
-                      TextButton(
-                        onPressed: () {
-                          // Implementa la lógica para recuperar la contraseña
-                        },
-                        child: Text(
-                          '¿Olvidaste tu contraseña?',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ),
                     ],
                   ),
                 ),
