@@ -91,23 +91,23 @@ colors: [
                   child: AnimatedTextKit(
                     animatedTexts: [
                       TypewriterAnimatedText(
-                          'La inteligencia artificial impulsa tu negocio hacia el futuro', speed: Duration(seconds: 1)),
+                          'La inteligencia artificial impulsa tu negocio hacia el futuro', speed: Duration(milliseconds: 1)),
                           
-                     TypewriterAnimatedText('El 75% de los líderes empresariales creen que la IA es esencial para su estrategia de futuro', speed: Duration(seconds: 1)),
+                     TypewriterAnimatedText('El 75% de los líderes empresariales creen que la IA es esencial para su estrategia de futuro', speed: Duration(milliseconds: 1)),
                       TypewriterAnimatedText(
-                          'Optimiza procesos, maximiza resultados', speed: Duration(seconds:1)),
+                          'Optimiza procesos, maximiza resultados', speed: Duration(milliseconds:1)),
                       TypewriterAnimatedText(
-                          'La eficiencia es la clave del éxito en la era digital', speed: Duration(seconds: 1)),
-                     TypewriterAnimatedText('Las empresas que integran IA incrementan un 35% su eficiencia operativa', speed: Duration(seconds: 1)),
+                          'La eficiencia es la clave del éxito en la era digital', speed: Duration(milliseconds: 1)),
+                     TypewriterAnimatedText('Las empresas que integran IA incrementan un 35% su eficiencia operativa', speed: Duration(milliseconds: 1)),
                       TypewriterAnimatedText(
-                          'Haz más con menos, gracias a la automatización', speed: Duration(seconds: 1)),
+                          'Haz más con menos, gracias a la automatización', speed: Duration(milliseconds: 1)),
                       TypewriterAnimatedText(
-                          'La innovación tecnológica impulsa tu crecimiento', speed: Duration(seconds: 1)),
+                          'La innovación tecnológica impulsa tu crecimiento', speed: Duration(milliseconds: 1)),
                       TypewriterAnimatedText(
-                          'Acelera el progreso de tu empresa con IA', speed: Duration(seconds: 1)),
-                     TypewriterAnimatedText('La automatización de tareas rutinarias incrementa la creatividad del equipo en un 20%', speed: Duration(seconds: 1)),
+                          'Acelera el progreso de tu empresa con IA', speed: Duration(milliseconds: 1)),
+                     TypewriterAnimatedText('La automatización de tareas rutinarias incrementa la creatividad del equipo en un 20%', speed: Duration(milliseconds: 1)),
                       TypewriterAnimatedText(
-                          'El futuro es automatizado, y tu empresa puede estar a la vanguardia', speed: Duration(seconds: 1)),
+                          'El futuro es automatizado, y tu empresa puede estar a la vanguardia', speed: Duration(milliseconds: 1)),
                     ],
                     onTap: () {
                       print("Tap Event");
