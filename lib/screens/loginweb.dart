@@ -69,7 +69,7 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
 colors: [
-  Colors.white,
+  
   Colors.orange.shade900,
   Colors.orange.shade800,
   Colors.orange.shade700,
@@ -78,6 +78,7 @@ colors: [
   Colors.orange.shade400,
   Colors.orange.shade300,
   Colors.orange.shade200,
+  Colors.white
 ],
 
                 ),
@@ -92,23 +93,23 @@ colors: [
                   child: AnimatedTextKit(
                     animatedTexts: [
                       TypewriterAnimatedText(
-                          'La inteligencia artificial impulsa tu negocio hacia el futuro', speed: Duration(milliseconds: 1)),
+                          'La inteligencia artificial impulsa tu negocio hacia el futuro', speed: Duration(milliseconds: 100)),
                           
-                     TypewriterAnimatedText('El 75% de los líderes empresariales creen que la IA es esencial para su estrategia de futuro', speed: Duration(milliseconds: 1)),
+                     TypewriterAnimatedText('El 75% de los líderes empresariales creen que la IA es esencial para su estrategia de futuro', speed: Duration(milliseconds: 100)),
                       TypewriterAnimatedText(
-                          'Optimiza procesos, maximiza resultados', speed: Duration(milliseconds:1)),
+                          'Optimiza procesos, maximiza resultados', speed: Duration(milliseconds:100)),
                       TypewriterAnimatedText(
-                          'La eficiencia es la clave del éxito en la era digital', speed: Duration(milliseconds: 1)),
-                     TypewriterAnimatedText('Las empresas que integran IA incrementan un 35% su eficiencia operativa', speed: Duration(milliseconds: 1)),
+                          'La eficiencia es la clave del éxito en la era digital', speed: Duration(milliseconds: 100)),
+                     TypewriterAnimatedText('Las empresas que integran IA incrementan un 35% su eficiencia operativa', speed: Duration(milliseconds: 100)),
                       TypewriterAnimatedText(
-                          'Haz más con menos, gracias a la automatización', speed: Duration(milliseconds: 1)),
+                          'Haz más con menos, gracias a la automatización', speed: Duration(milliseconds: 100)),
                       TypewriterAnimatedText(
-                          'La innovación tecnológica impulsa tu crecimiento', speed: Duration(milliseconds: 1)),
+                          'La innovación tecnológica impulsa tu crecimiento', speed: Duration(milliseconds: 100)),
                       TypewriterAnimatedText(
-                          'Acelera el progreso de tu empresa con IA', speed: Duration(milliseconds: 1)),
-                     TypewriterAnimatedText('La automatización de tareas rutinarias incrementa la creatividad del equipo en un 20%', speed: Duration(milliseconds: 1)),
+                          'Acelera el progreso de tu empresa con IA', speed: Duration(milliseconds: 100)),
+                     TypewriterAnimatedText('La automatización de tareas rutinarias incrementa la creatividad del equipo en un 20%', speed: Duration(milliseconds: 100)),
                       TypewriterAnimatedText(
-                          'El futuro es automatizado, y tu empresa puede estar a la vanguardia', speed: Duration(milliseconds: 1)),
+                          'El futuro es automatizado, y tu empresa puede estar a la vanguardia', speed: Duration(milliseconds: 100)),
                     ],
                     onTap: () {
                       print("Tap Event");
