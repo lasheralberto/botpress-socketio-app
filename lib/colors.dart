@@ -1,4 +1,4 @@
-//colores
+//coloress
 import 'package:flutter/material.dart';
 
 class AppColors {
