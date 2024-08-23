@@ -69,6 +69,7 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
 colors: [
+  Colors.white,
   Colors.orange.shade900,
   Colors.orange.shade800,
   Colors.orange.shade700,
