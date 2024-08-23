@@ -1,9 +1,10 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:helloworld/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:helloworld/main.dart';
+import 'package:helloworld/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:helloworld/constants.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 class LoginAppWeb extends StatelessWidget {
   @override
@@ -17,7 +18,8 @@ class LoginScreenWeb extends StatefulWidget {
   _LoginScreenWebState createState() => _LoginScreenWebState();
 }
 
-class _LoginScreenWebState extends State<LoginScreenWeb> {
+class _LoginScreenWebState extends State<LoginScreenWeb>
+    with SingleTickerProviderStateMixin {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -27,6 +29,11 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
     _emailController.text = "";
     _passwordController.text = "";
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   String? _errorMessage;
@@ -53,18 +60,59 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
     return Scaffold(
       body: Row(
         children: [
-          // Lado izquierdo: Imagen o cualquier contenido adicional
+          // Lado izquierdo: Fondo con animación de texto
           Expanded(
             flex: 1,
             child: Container(
-              color:
-                  AppColors.appBarColor, // Color de fondo de la parte superior
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                  
+                    Colors.orange.shade200,
+                    Colors.orange.shade300,
+                    Colors.orange.shade400,
+                    Colors.orange.shade500,
+                    Colors.orange.shade600,
+                    Colors.orange.shade700,
+                    Colors.orange.shade800,
+                    Colors.orange.shade900,
+                  ],
+                ),
+              ),
               child: Center(
-                child: Image.asset(
-                  'lib/assets/pailogo.png', // Ruta de la imagen en los activos
-                  width: 300, // Puedes ajustar el ancho según sea necesario
-                  height: 300, // Puedes ajustar la altura según sea necesario
-                  fit: BoxFit.cover, // Ajusta cómo se muestra la imagen
+                child: DefaultTextStyle(
+                  style: const TextStyle(
+                    fontSize: 30.0,
+                    fontFamily: 'Agne',
+                    color: Colors.white, // Cambia el color del texto aquí
+                  ),
+                  child: AnimatedTextKit(
+                    animatedTexts: [
+                      TypewriterAnimatedText(
+                          'La inteligencia artificial impulsa tu negocio hacia el futuro', speed: Duration(seconds: 2)),
+                          
+                     TypewriterAnimatedText('El 75% de los líderes empresariales creen que la IA es esencial para su estrategia de futuro', speed: Duration(seconds: 2)),
+                      TypewriterAnimatedText(
+                          'Optimiza procesos, maximiza resultados', speed: Duration(seconds: 2)),
+                      TypewriterAnimatedText(
+                          'La eficiencia es la clave del éxito en la era digital', speed: Duration(seconds: 2)),
+                     TypewriterAnimatedText('Las empresas que integran IA incrementan un 35% su eficiencia operativa', speed: Duration(seconds: 2)),
+                      TypewriterAnimatedText(
+                          'Haz más con menos, gracias a la automatización', speed: Duration(seconds: 2)),
+                      TypewriterAnimatedText(
+                          'La innovación tecnológica impulsa tu crecimiento', speed: Duration(seconds: 2)),
+                      TypewriterAnimatedText(
+                          'Acelera el progreso de tu empresa con IA', speed: Duration(seconds: 2)),
+                     TypewriterAnimatedText('La automatización de tareas rutinarias incrementa la creatividad del equipo en un 20%', speed: Duration(seconds: 2)),
+                      TypewriterAnimatedText(
+                          'El futuro es automatizado, y tu empresa puede estar a la vanguardia', speed: Duration(seconds: 2)),
+                    ],
+                    onTap: () {
+                      print("Tap Event");
+                    },
+                  ),
                 ),
               ),
             ),
@@ -81,12 +129,27 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       SizedBox(height: 40),
-                      Text(
-                        'Iniciar Sesión',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryColor,
+                      Center(
+                        child: Image.asset(
+                          'lib/assets/pailogo.png', // Ruta de la imagen en los activos
+                          width:
+                              300, // Puedes ajustar el ancho según sea necesario
+                          height:
+                              300, // Puedes ajustar la altura según sea necesario
+                          fit: BoxFit.cover, // Ajusta cómo se muestra la imagen
+                        ),
+                      ),
+                      SizedBox(
+                        height: 40,
+                      ),
+                      Center(
+                        child: Text(
+                          'Bienvenido',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryColor,
+                          ),
                         ),
                       ),
                       SizedBox(height: 40),
@@ -97,57 +160,64 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
                         ),
                         SizedBox(height: 10),
                       ],
-                      SizedBox(
-                        width: 300,
-                        child: TextField(
-                          controller: _emailController,
-                          decoration: InputDecoration(
-                            labelText: 'Correo Electrónico',
-                            prefixIcon: Icon(Icons.email),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                      Center(
+                        child: SizedBox(
+                          width: 300,
+                          child: TextField(
+                            controller: _emailController,
+                            decoration: InputDecoration(
+                              labelText: 'Correo Electrónico',
+                              prefixIcon: Icon(Icons.email),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
+                            keyboardType: TextInputType.emailAddress,
                           ),
-                          keyboardType: TextInputType.emailAddress,
                         ),
                       ),
                       SizedBox(height: 20),
-                      SizedBox(
-                        width: 300,
-                        child: TextField(
-                          controller: _passwordController,
-                          decoration: InputDecoration(
-                            labelText: 'Contraseña',
-                            prefixIcon: Icon(Icons.lock),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                      Center(
+                        child: SizedBox(
+                          width: 300,
+                          child: TextField(
+                            controller: _passwordController,
+                            decoration: InputDecoration(
+                              labelText: 'Contraseña',
+                              prefixIcon: Icon(Icons.lock),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
+                            obscureText: true,
                           ),
-                          obscureText: true,
                         ),
                       ),
                       SizedBox(height: 30),
-                      SizedBox(
-                        width: 300,
-                        child: ElevatedButton(
-                          onPressed: _login,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Center(
-                              child: Text(
-                                'Iniciar Sesión',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
+                      Center(
+                        child: SizedBox(
+                          width: 300,
+                          child: ElevatedButton(
+                            onPressed: _login,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Center(
+                                child: Text(
+                                  'Iniciar Sesión',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: Size(double.infinity,
-                                50), // Botón ocupa todo el ancho
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size(double.infinity,
+                                  50), // Botón ocupa todo el ancho
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
                         ),
