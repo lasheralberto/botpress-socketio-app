@@ -152,7 +152,7 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
                       ),
                       Center(
                         child: Text(
-                          'Bienvenido',
+                          'Área cliente',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
