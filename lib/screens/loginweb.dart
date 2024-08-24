@@ -87,35 +87,35 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
               child: Center(
                 child: DefaultTextStyle(
                   style: const TextStyle(
-                    fontSize: 30.0,
+                    fontSize: 20.0,
                     fontFamily: 'Agne',
                     color: Colors.white, // Cambia el color del texto aquí
                   ),
                   child: AnimatedTextKit(
                     animatedTexts: [
                       TypewriterAnimatedText('Automatizamos tus procesos',
-                          speed: Duration(milliseconds: 2)),
+                          speed: Duration(milliseconds: 20)),
                       TypewriterAnimatedText(
                           'Optimiza procesos, maximiza resultados',
-                          speed: Duration(milliseconds: 2)),
+                          speed: Duration(milliseconds: 20)),
                       TypewriterAnimatedText(
                           'La eficiencia es la clave del éxito en la era digital',
-                          speed: Duration(milliseconds: 2)),
+                          speed: Duration(milliseconds: 20)),
                       TypewriterAnimatedText(
                           'Las empresas que integran IA incrementan un 35% su eficiencia operativa',
-                          speed: Duration(milliseconds: 2)),
+                          speed: Duration(milliseconds:20)),
                       TypewriterAnimatedText(
                           'Haz más con menos, gracias a la automatización',
-                          speed: Duration(milliseconds: 2)),
+                          speed: Duration(milliseconds: 20)),
                       TypewriterAnimatedText(
                           'La innovación tecnológica impulsa tu crecimiento',
-                          speed: Duration(milliseconds: 2)),
+                          speed: Duration(milliseconds:20)),
                       TypewriterAnimatedText(
                           'Acelera el progreso de tu empresa con IA',
-                          speed: Duration(milliseconds: 2)),
+                          speed: Duration(milliseconds: 20)),
                       TypewriterAnimatedText(
                           'El futuro es automatizado, y tu empresa puede estar a la vanguardia',
-                          speed: Duration(milliseconds: 2)),
+                          speed: Duration(milliseconds: 20)),
                     ],
                     onTap: () {
                       print("Tap Event");
