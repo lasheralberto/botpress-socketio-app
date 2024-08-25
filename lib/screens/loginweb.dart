@@ -82,8 +82,6 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
                     Colors.orange.shade200,
                     Colors.orange.shade100,
                     Colors.orange.shade100,
-                    Colors.white10, 
-                    Colors.white10, 
                     Colors.white
                   ],
                 ),
