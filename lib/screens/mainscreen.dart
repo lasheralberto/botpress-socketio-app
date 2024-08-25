@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:helloworld/constants.dart';
 import 'package:helloworld/screens/login.dart';
 import 'package:helloworld/screens/loginweb.dart';
+import 'package:helloworld/widgets/botbehavior.dart';
 import 'package:intl/intl.dart';
 import 'package:helloworld/colors.dart';
 import 'package:helloworld/functions.dart';
@@ -45,14 +46,8 @@ class SwitchRoute {
 class ResponsiveLoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Obtener las dimensiones de la pantalla
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    // Definir el umbral de ancho para determinar si es escritorio o móvil
-    const desktopScreenWidthThreshold = 800.0;
-
     // Mostrar la pantalla de escritorio si el ancho es mayor o igual al umbral, de lo contrario la pantalla móvil
-    if (screenWidth >= desktopScreenWidthThreshold) {
+    if (isWebSize(800, context)) {
       return LoginAppWeb();
     } else {
       return LoginAppMobile();
@@ -71,6 +66,7 @@ class _MainScreenState extends State<MainScreen> {
   String? _selectedBotId;
   String? _selectedBotName;
   String? _selectedKbid;
+  Widget? _bottomNavigationItems;
 
   static List<Widget> _widgetOptions = <Widget>[
     PDFAttachmentScreen(),
@@ -79,6 +75,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
+    _bottomNavigationItems = bottomNavigationItems();
     super.initState();
   }
 
@@ -91,6 +88,26 @@ class _MainScreenState extends State<MainScreen> {
   Stream<List<Map<String, String>>> _fetchBots() async* {
     var bots = await getListBots(context);
     yield bots;
+  }
+
+  Widget? bottomNavigationItems() {
+    return isWebSize(800, context) == false
+        ? BottomNavigationBar(
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.attach_file),
+                label: 'Knowledge Base',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings),
+                label: 'Ajustes del Bot',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: AppColors.accentColor,
+            onTap: _onItemTapped,
+          )
+        : null;
   }
 
   @override
@@ -221,21 +238,7 @@ class _MainScreenState extends State<MainScreen> {
         elevation: 0,
       ),
       body: _widgetOptions.elementAt(_selectedIndex),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.attach_file),
-            label: 'Knowledge Base',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Ajustes del Bot',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: AppColors.accentColor,
-        onTap: _onItemTapped,
-      ),
+      bottomNavigationBar: _bottomNavigationItems,
     );
   }
 }
@@ -284,6 +287,8 @@ class _PDFAttachmentScreenState extends State<PDFAttachmentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            SizedBox(height: 16),
+            isWebSize(800, context) == true ? BotInfoCard() : SizedBox.shrink(),
             SizedBox(height: 16),
             Expanded(child: FileListView(
               onRemoveAttached: (index) {

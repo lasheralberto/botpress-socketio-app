@@ -257,3 +257,17 @@ Stream<List<dynamic>> fetchFiles(context) async* {
     await Future.delayed(Duration(seconds: 10));
   }
 }
+
+bool isWebSize(threshold, context) {
+  // Obtener las dimensiones de la pantalla
+  final screenWidth = MediaQuery.of(context).size.width;
+
+  // Definir el umbral de ancho para determinar si es escritorio o móvil
+  const desktopScreenWidthThreshold = 800.0;
+
+  if (screenWidth >= desktopScreenWidthThreshold) {
+    return true;
+  } else {
+    return false;
+  }
+}

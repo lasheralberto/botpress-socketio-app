@@ -23,13 +23,11 @@ class _BotSettingsScreenState extends State<BotSettingsScreen> {
           children: <Widget>[
             Expanded(
                 child: ListView.builder(
-                            itemCount: 1,
-                            itemBuilder: (context, index) {
-                              return BotInfoCard(
-                                
-                              );
-                            },
-                          )),
+              itemCount: 1,
+              itemBuilder: (context, index) {
+                return BotInfoCard();
+              },
+            )),
           ],
         ),
       ),
