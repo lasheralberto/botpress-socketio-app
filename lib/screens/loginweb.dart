@@ -64,52 +64,14 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
           Expanded(
             flex: 1,
             child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
- AppColors.primaryColor
-                  ],
-                ),
-              ),
+              color:
+                  AppColors.appBarColor, // Color de fondo de la parte superior
               child: Center(
-                child: DefaultTextStyle(
-                  style: const TextStyle(
-                    fontSize: 30.0,
-                    fontFamily: 'Agne',
-                    color: Colors.white, // Cambia el color del texto aquí
-                  ),
-                  child: AnimatedTextKit(
-                    animatedTexts: [
-                      TypewriterAnimatedText('Automatizamos tus procesos',
-                          speed: Duration(milliseconds: 2)),
-                      TypewriterAnimatedText(
-                          'Optimiza procesos, maximiza resultados',
-                          speed: Duration(milliseconds: 2)),
-                      TypewriterAnimatedText(
-                          'La eficiencia es la clave del éxito en la era digital',
-                          speed: Duration(milliseconds: 2)),
-                      TypewriterAnimatedText(
-                          'Las empresas que integran IA incrementan un 35% su eficiencia operativa',
-                          speed: Duration(milliseconds: 2)),
-                      TypewriterAnimatedText(
-                          'Haz más con menos, gracias a la automatización',
-                          speed: Duration(milliseconds: 2)),
-                      TypewriterAnimatedText(
-                          'La innovación tecnológica impulsa tu crecimiento',
-                          speed: Duration(milliseconds: 2)),
-                      TypewriterAnimatedText(
-                          'Acelera el progreso de tu empresa con IA',
-                          speed: Duration(milliseconds: 2)),
-                      TypewriterAnimatedText(
-                          'El futuro es automatizado, y tu empresa puede estar a la vanguardia',
-                          speed: Duration(milliseconds: 2)),
-                    ],
-                    onTap: () {
-                      print("Tap Event");
-                    },
-                  ),
+                child: Image.asset(
+                  'lib/assets/pailogo.png', // Ruta de la imagen en los activos
+                  width: 300, // Puedes ajustar el ancho según sea necesario
+                  height: 300, // Puedes ajustar la altura según sea necesario
+                  fit: BoxFit.cover, // Ajusta cómo se muestra la imagen
                 ),
               ),
             ),
@@ -126,27 +88,12 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       SizedBox(height: 40),
-                      Center(
-                        child: Image.asset(
-                          'lib/assets/pailogo.png', // Ruta de la imagen en los activos
-                          width:
-                              300, // Puedes ajustar el ancho según sea necesario
-                          height:
-                              300, // Puedes ajustar la altura según sea necesario
-                          fit: BoxFit.cover, // Ajusta cómo se muestra la imagen
-                        ),
-                      ),
-                      SizedBox(
-                        height: 40,
-                      ),
-                      Center(
-                        child: Text(
-                          'Bienvenido',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryColor,
-                          ),
+                      Text(
+                        'Iniciar Sesión',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryColor,
                         ),
                       ),
                       SizedBox(height: 40),
