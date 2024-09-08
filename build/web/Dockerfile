@@ -1,11 +1,12 @@
 FROM nginx:alpine
 
-# Copy the config files
-ADD ./conf/ /etc/nginx/
-# Clears the static files
-RUN rm -rf /usr/share/nginx/html
-# Copy the static web content
-ADD . /usr/share/nginx/html
+# Elimina archivos estáticos antiguos (si los hay)
+RUN rm -rf /usr/share/nginx/html/*
 
-# Suggests to bind port 80 to any port of the host system
+# Copia solo los archivos de salida de tu aplicación Flutter (por ejemplo, build/web) al directorio de Nginx
+COPY build/web /usr/share/nginx/html
+
+# Copia la configuración personalizada de Nginx
+COPY ./conf/app.conf /etc/nginx/conf.d/default.conf
+
 EXPOSE 80
