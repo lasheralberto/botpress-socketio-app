@@ -20,6 +20,12 @@ dependencies:
   firebase_auth: ^5.1.4
   firebase_database: ^11.0.4
   animated_text_kit: ^4.2.2
+  shimmer: ^3.0.0
+  loading_animation_widget: ^1.2.1
+  loading_btn: ^1.0.3
+  auto_size_widget: ^0.0.4
+  web_socket_channel: ^3.0.1
+  socket_io_client: ^2.0.3+1
 
 # dev_dependencies:
 #   flutter_test:

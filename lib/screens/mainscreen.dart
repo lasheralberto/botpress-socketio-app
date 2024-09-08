@@ -1,13 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:helloworld/constants.dart';
+import 'package:helloworld/models/constants.dart';
+import 'package:helloworld/screens/chatscreen.dart';
 import 'package:helloworld/screens/login.dart';
 import 'package:helloworld/screens/loginweb.dart';
 import 'package:helloworld/widgets/botbehavior.dart';
 import 'package:intl/intl.dart';
-import 'package:helloworld/colors.dart';
-import 'package:helloworld/functions.dart';
+import 'package:helloworld/models/colors.dart';
+import 'package:helloworld/data/functions.dart';
 import 'package:helloworld/screens/fileviewer.dart';
 import 'package:helloworld/screens/botsettings.dart';
 import 'package:provider/provider.dart';
@@ -15,10 +16,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
-import 'package:helloworld/firebase_options.dart';
-import 'package:helloworld/firebase_functions.dart';
+import 'package:helloworld/models/firebase_options.dart';
+import 'package:helloworld/data/firebase_functions.dart';
 import 'package:helloworld/screens/botsettings.dart';
 import 'package:helloworld/main.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class SwitchRoute {
   static go(context, value) async {
@@ -66,17 +69,15 @@ class _MainScreenState extends State<MainScreen> {
   String? _selectedBotId;
   String? _selectedBotName;
   String? _selectedKbid;
+  List<Map<String, dynamic>> _conversations = []; // Lista de conversaciones
   Widget? _bottomNavigationItems;
-
-  static List<Widget> _widgetOptions = <Widget>[
-    PDFAttachmentScreen(),
-    BotSettingsScreen(),
-  ];
+  bool? _isAllDataLoaded;
 
   @override
   void initState() {
-    _bottomNavigationItems = bottomNavigationItems();
+    _isAllDataLoaded = true;
     super.initState();
+    // Inicializa otras cosas si es necesario
   }
 
   void _onItemTapped(int index) {
@@ -89,27 +90,7 @@ class _MainScreenState extends State<MainScreen> {
     var bots = await getListBots(context);
     yield bots;
   }
-
-  Widget? bottomNavigationItems() {
-    return isWebSize(800, context) == false
-        ? BottomNavigationBar(
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.attach_file),
-                label: 'Knowledge Base',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.settings),
-                label: 'Ajustes del Bot',
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: AppColors.accentColor,
-            onTap: _onItemTapped,
-          )
-        : null;
-  }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -157,20 +138,17 @@ class _MainScreenState extends State<MainScreen> {
                   });
 
                   // Obtener kbid desde Firestore
-                  debugPrint('fetching kb from firestore..');
                   String? kbid = await fetchKbid(_selectedBotId.toString());
-                  debugPrint('fetched kb from firestore..');
 
                   if (kbid != null) {
-                    // Actualiza el estado o realiza otras acciones necesarias con el kbid
+                    // Actualiza el estado con el kbid obtenido
                     setState(() {
-                      _selectedKbid =
-                          kbid; // Asegúrate de tener esta variable en tu estado
+                      _selectedKbid = kbid;
                       constants.setKbId(_selectedKbid.toString());
-                      debugPrint(
-                          'selected kbid es:' + _selectedKbid.toString());
-                      debugPrint('-------------');
                     });
+
+                    // Fetch and set conversations
+                    //await _fetchAndSetConversations(_selectedBotId.toString());
                   }
                 });
               }
@@ -183,12 +161,9 @@ class _MainScreenState extends State<MainScreen> {
                     onChanged: (String? newValue) async {
                       if (newValue == null) return;
 
-                      // Encuentra el bot seleccionado
                       var selectedBot = _bots.firstWhere(
                           (bot) => bot['name'] == newValue,
-                          orElse: () =>
-                              {} // Añade un valor predeterminado en caso de que no se encuentre el bot
-                          );
+                          orElse: () => {});
 
                       if (selectedBot.isEmpty) {
                         debugPrint('Selected bot not found.');
@@ -196,15 +171,10 @@ class _MainScreenState extends State<MainScreen> {
                       }
 
                       setState(() {
-                        // Actualiza el estado con el bot seleccionado
                         _selectedBotId = selectedBot['id'];
                         _selectedBotName = selectedBot['name'];
                         constants.setBotId(_selectedBotId.toString());
                       });
-
-                      debugPrint('Selected botid is: $_selectedBotId');
-                      debugPrint('-------------');
-                      debugPrint('Fetching kbid from Firestore..');
 
                       // Obtén el kbid desde Firestore
                       String? kbid = await fetchKbid(_selectedBotId.toString());
@@ -214,14 +184,10 @@ class _MainScreenState extends State<MainScreen> {
                         _selectedKbid = kbid;
                         constants.setKbId(_selectedKbid.toString());
 
-                        debugPrint(
-                            'Selected kbid from dropdown is: $_selectedKbid');
-                        debugPrint('-------------');
-                      } else {
-                        debugPrint('Kbid not found for the selected bot.');
+                        // Fetch and set conversations
+                        // await _fetchAndSetConversations(
+                        //     _selectedBotId.toString());
                       }
-
-                      debugPrint('Selected kb is: $_selectedKbid');
                     },
                     items: _bots.map<DropdownMenuItem<String>>((bot) {
                       return DropdownMenuItem<String>(
@@ -237,41 +203,41 @@ class _MainScreenState extends State<MainScreen> {
         ),
         elevation: 0,
       ),
-      body: _widgetOptions.elementAt(_selectedIndex),
-      bottomNavigationBar: _bottomNavigationItems,
+      body: _isAllDataLoaded == false
+          ? Center(
+              child: LoadingAnimationWidget.bouncingBall(
+                color: Colors.orange,
+                size: 150,
+              ),
+            )
+          : PDFAttachmentScreen(
+              conversations: _conversations, botid: _selectedBotId ?? ""),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.attach_file),
+      //       label: 'Knowledge Base',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.settings),
+      //       label: 'Ajustes del Bot',
+      //     ),
+      //   ],
+      //   currentIndex: _selectedIndex,
+      //   selectedItemColor: AppColors.accentColor,
+      //   onTap: _onItemTapped,
+      // ),
     );
   }
 }
 
-Future<List<Map<String, String>>> getListBots(BuildContext context) async {
-  var botApiUrl = Constants.botUrl;
-  final constants = Provider.of<Constants>(context, listen: false);
-
-  var headers = {
-    "accept": "application/json",
-    "x-bot-id": constants.botIdHeader,
-    "x-workspace-id": Constants.workspaceIdHeader,
-    "authorization": Constants.authorizationHeader
-  };
-  var response = await http.get(Uri.parse(botApiUrl), headers: headers);
-
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    final List<dynamic> bots = data['bots'];
-    var botList = bots
-        .map<Map<String, String>>((bot) => {
-              "name": bot["name"] as String,
-              "id": bot["id"] as String,
-            })
-        .toList();
-    botList.add({"name": "", "id": ""}); // Añadir opción vacía si lo necesitas
-    return botList;
-  } else {
-    return [];
-  }
-}
-
 class PDFAttachmentScreen extends StatefulWidget {
+  final List<Map<String, dynamic>>
+      conversations; // Acepta la lista de conversaciones
+  final String botid;
+
+  PDFAttachmentScreen({required this.conversations, required this.botid});
+
   @override
   _PDFAttachmentScreenState createState() => _PDFAttachmentScreenState();
 }
@@ -279,22 +245,50 @@ class PDFAttachmentScreen extends StatefulWidget {
 class _PDFAttachmentScreenState extends State<PDFAttachmentScreen> {
   List<PlatformFile> _attachedFiles = [];
 
+  //Decide
+  Widget _BotBehaviorWidget(context) {
+    if (isWebSize(800, context)) {
+      return BotBehaviorCard();
+    } else {
+      return SizedBox.shrink();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Row(
           children: [
-            SizedBox(height: 16),
-            isWebSize(800, context) == true ? BotInfoCard() : SizedBox.shrink(),
-            SizedBox(height: 16),
-            Expanded(child: FileListView(
-              onRemoveAttached: (index) {
-                _attachedFiles.removeAt(index);
-              },
-            )),
+            Expanded(
+              flex: 2,
+              child: ChatScreen(
+                  conversations: widget.conversations, botid: widget.botid),
+            ),
+            SizedBox(width: 16), // Espacio entre las columnas
+            // Columna Izquierda: Widgets Originales
+            Expanded(
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: 16),
+                  _BotBehaviorWidget(context),
+                  SizedBox(height: 16),
+                  Expanded(
+                    child: FileListView(
+                      onRemoveAttached: (index) {
+                        _attachedFiles.removeAt(index);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Columna Derecha: Chat
           ],
         ),
       ),

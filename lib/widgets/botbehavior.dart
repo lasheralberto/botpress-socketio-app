@@ -1,27 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:helloworld/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:helloworld/models/constants.dart';
 
-class BotInfoCard extends StatefulWidget {
-  BotInfoCard();
-
+class BotBehaviorCard extends StatefulWidget {
   @override
-  _BotInfoCardState createState() => _BotInfoCardState();
+  _BotBehaviorCardState createState() => _BotBehaviorCardState();
 }
 
-class _BotInfoCardState extends State<BotInfoCard> {
+class _BotBehaviorCardState extends State<BotBehaviorCard> {
   Map<String, dynamic>? botData;
   bool isLoading = true;
   bool thereIsData = true;
   late Constants _constants;
+  bool _isMinimized = false;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Mueve la inicialización del provider aquí
     _constants = Provider.of<Constants>(context, listen: false);
-    _fetchDataFromFirebase();
     _constants.addListener(_onConstantsChanged);
+
+    // Llama al método para obtener los datos de Firebase
+    _fetchDataFromFirebase();
   }
 
   @override
@@ -41,14 +49,12 @@ class _BotInfoCardState extends State<BotInfoCard> {
 
     setState(() {
       isLoading = true;
-
       thereIsData = false;
     });
 
     try {
       CollectionReference kbCollection =
           FirebaseFirestore.instance.collection('kbdata');
-
       QuerySnapshot snapshot = await kbCollection
           .where('botid', isEqualTo: _constants.botIdHeader)
           .limit(1)
@@ -65,7 +71,7 @@ class _BotInfoCardState extends State<BotInfoCard> {
             'bearer': data['bearer'],
             'botid': data['botid'],
             'botbehavior': data['botbehavior'],
-            'icon': Icons.person,
+            'icon': Icons.arrow_forward_ios,
             'docId': doc.id,
           };
           isLoading = false;
@@ -74,7 +80,6 @@ class _BotInfoCardState extends State<BotInfoCard> {
       } else {
         setState(() {
           isLoading = false;
-
           thereIsData = false;
         });
       }
@@ -82,7 +87,6 @@ class _BotInfoCardState extends State<BotInfoCard> {
       print('Error fetching data from Firebase: $e');
       setState(() {
         isLoading = false;
-
         thereIsData = false;
       });
     }
@@ -107,9 +111,7 @@ class _BotInfoCardState extends State<BotInfoCard> {
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: Text('Cancelar'),
             ),
             TextButton(
@@ -145,50 +147,74 @@ class _BotInfoCardState extends State<BotInfoCard> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoading == true
+    return isLoading
         ? Center(child: CircularProgressIndicator())
-        : thereIsData == false
-            ? Center(
-                child: Text('No hay datos'),
-              )
-            : Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 4,
-                margin: EdgeInsets.all(16),
-                child: ListTile(
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blue[50],
-                    child: Icon(
-                      botData?['icon'],
-                      color: Colors.blue,
-                    ),
-                  ),
-                  title: Text(
-                    'Comportamiento',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${botData?['botbehavior'] ?? ''}',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
+        : thereIsData
+            ? AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                width: _isMinimized ? 100 : 300,
+                height: 150, // Fixed height
+                curve: Curves.easeInOut,
+                child: _isMinimized == false
+                    ? Card(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                    ],
-                  ),
-                  trailing: Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () => _showEditDialog(context, 'botbehavior'),
-                ),
+                        elevation: 4,
+                        margin: EdgeInsets.all(16),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          leading: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isMinimized = !_isMinimized;
+                              });
+                            },
+                            child: CircleAvatar(
+                              backgroundColor: Colors.blue[50],
+                              child: Icon(
+                                botData?['icon'],
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            'Comportamiento del bot',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          subtitle: Text(
+                            '${botData?['botbehavior'] ?? ''}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                          trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                          onTap: () => _showEditDialog(context, 'botbehavior'),
+                        ),
+                      )
+                    : GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isMinimized = false;
+                          });
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.blue[50],
+                          child: Icon(
+                            botData?['icon'],
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ))
+            : Center(
+                child: Text('No hay comportamiento establecido para el bot.'),
               );
   }
 }

@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:helloworld/functions.dart';
+import 'package:helloworld/data/functions.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'constants.dart';
+import 'models/constants.dart';
 import 'package:provider/provider.dart';
 
 class FileViewerFormatter {

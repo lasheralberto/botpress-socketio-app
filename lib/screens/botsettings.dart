@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:helloworld/constants.dart';
+import 'package:helloworld/models/constants.dart';
 import 'package:helloworld/main.dart';
 import 'package:helloworld/widgets/botbehavior.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +25,7 @@ class _BotSettingsScreenState extends State<BotSettingsScreen> {
                 child: ListView.builder(
               itemCount: 1,
               itemBuilder: (context, index) {
-                return BotInfoCard();
+                return BotBehaviorCard();
               },
             )),
           ],

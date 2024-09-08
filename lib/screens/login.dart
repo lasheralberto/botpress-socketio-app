@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:helloworld/colors.dart';
+import 'package:helloworld/models/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:helloworld/main.dart';
 import 'package:provider/provider.dart';
-import 'package:helloworld/constants.dart';
+import 'package:helloworld/models/constants.dart';
 
 class LoginAppMobile extends StatelessWidget {
   @override

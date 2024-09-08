@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:helloworld/constants.dart';
-import 'package:helloworld/functions.dart';
-import 'package:helloworld/colors.dart';
+import 'package:helloworld/models/constants.dart';
+import 'package:helloworld/data/functions.dart';
+import 'package:helloworld/models/colors.dart';
 import 'package:helloworld/fileviewerclasses.dart';
+import 'package:helloworld/widgets/addkbutton.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -148,65 +149,84 @@ class _FileListViewState extends State<FileListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: _pickFiles,
-        child: Icon(Icons.auto_mode),
-      ),
-      body: StreamBuilder<List<dynamic>>(
-        stream: _streamController.stream,
-        builder: (context, snapshot) {
-          if (snapshot.data == null) {
-            return Center(child: Text('No has subido ningún archivo'));
-          } else if (snapshot.connectionState == ConnectionState.waiting &&
-              isLoading) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No se encontraron archivos'));
-          } else {
-            var files = snapshot.data!;
-            return ListView.builder(
-              itemCount: files.length,
-              itemBuilder: (context, index) {
-                var file = files[index];
-                return Dismissible(
-                  key: Key(file['key']),
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    padding: EdgeInsets.only(right: 20.0),
-                    child: Icon(Icons.delete, color: Colors.white, size: 36),
-                  ),
-                  direction: DismissDirection.endToStart,
-                  onDismissed: (direction) async {
-                    // Asegúrate de que el archivo sigue presente en la lista antes de eliminarlo
-                    if (files.contains(file)) {
-                      var isDeleted = await deleteFile(context, file['id']);
-                      if (isDeleted == true) {
-                        if (mounted) {
-                          setState(() {
-                            _files.removeAt(index);
-                            _streamController.add(_files);
-                          });
-                        }
-                        widget.onRemoveAttached?.call(index);
-                      }
-                    }
-                  },
-                  child: ListTile(
-                    title: Text(file['key'] ?? 'Sin nombre'),
-                    subtitle: Text(
-                        '${_fileFormatter.formatFileSize(file['size'] ?? 0)}\n'
-                        'Subido: ${_fileFormatter.formatDate(file['createdAt'] ?? '')}'),
-                    leading: Icon(Icons.file_present,
-                        color: _fileFormatter.returnColorFile(file)),
-                  ),
-                );
-              },
-            );
-          }
-        },
+      backgroundColor: Colors.white,
+      body: SizedBox(
+        width: MediaQuery.of(context).size.width / 3,
+        child: Stack(
+          children: [
+            Card(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 20,
+              margin: EdgeInsets.all(16),
+              child: StreamBuilder<List<dynamic>>(
+                stream: _streamController.stream,
+                builder: (context, snapshot) {
+                  if (snapshot.data == null) {
+                    return Center(child: Text('No has subido ningún archivo'));
+                  } else if (snapshot.connectionState ==
+                          ConnectionState.waiting &&
+                      isLoading) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text('No se encontraron archivos'));
+                  } else {
+                    var files = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: files.length,
+                      itemBuilder: (context, index) {
+                        var file = files[index];
+                        return Dismissible(
+                          key: Key(file['key']),
+                          background: Container(
+                            color: Colors.red,
+                            alignment: Alignment.centerRight,
+                            padding: EdgeInsets.only(right: 20.0),
+                            child: Icon(Icons.delete,
+                                color: Colors.white, size: 36),
+                          ),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (direction) async {
+                            // Asegúrate de que el archivo sigue presente en la lista antes de eliminarlo
+                            if (files.contains(file)) {
+                              var isDeleted =
+                                  await deleteFile(context, file['id']);
+                              if (isDeleted == true) {
+                                if (mounted) {
+                                  setState(() {
+                                    _files.removeAt(index);
+                                    _streamController.add(_files);
+                                  });
+                                }
+                                widget.onRemoveAttached?.call(index);
+                              }
+                            }
+                          },
+                          child: ListTile(
+                            title: Text(file['key'] ?? 'Sin nombre'),
+                            subtitle: Text(
+                                '${_fileFormatter.formatFileSize(file['size'] ?? 0)}\n'
+                                'Subido: ${_fileFormatter.formatDate(file['createdAt'] ?? '')}'),
+                            leading: Icon(Icons.file_present,
+                                color: _fileFormatter.returnColorFile(file)),
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            AddKnowledgeBaseFileButton(onPressed: _pickFiles)
+          ],
+        ),
       ),
     );
   }

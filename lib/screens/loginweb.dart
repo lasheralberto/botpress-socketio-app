@@ -1,9 +1,13 @@
 import 'dart:math';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:helloworld/colors.dart';
+import 'package:helloworld/models/colors.dart';
+import 'package:helloworld/models/firebase_options.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:loading_btn/loading_btn.dart';
 import 'package:provider/provider.dart';
-import 'package:helloworld/constants.dart';
+import 'package:helloworld/models/constants.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 
 class LoginAppWeb extends StatelessWidget {
@@ -26,8 +30,9 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
 
   @override
   void initState() {
-    _emailController.text = "";
-    _passwordController.text = "";
+    _emailController.text = "lasheralberto@gmail.com";
+    _passwordController.text = "lasheralberto";
+
     super.initState();
   }
 
@@ -38,20 +43,42 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
 
   String? _errorMessage;
 
-  void _login() async {
+  Future<bool> _login() async {
     try {
-      debugPrint('Inicio de sesión..');
-      await _auth.signInWithEmailAndPassword(
+      debugPrint('Inicio de sesión...');
+
+      // Intento de inicio de sesión con Firebase Authentication
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
-      // Navegar a la pantalla principal si el login es exitoso
-      debugPrint("Login exitoso");
-      Navigator.pushNamed(context, '/home');
+
+      // Verificar si el inicio de sesión fue exitoso comprobando el objeto `User`
+      if (userCredential.user != null) {
+        debugPrint('Usuario autenticado: ${userCredential.user!.uid}');
+
+        // Navegar a la pantalla principal si el login es exitoso
+        Navigator.pushReplacementNamed(
+            context, '/mainScreen'); // Ejemplo de navegación
+
+        return true;
+      } else {
+        debugPrint('Fallo en la autenticación. Credenciales incorrectas.');
+        return false;
+      }
     } on FirebaseAuthException catch (e) {
+      // Manejo de errores para mostrar un mensaje adecuado
+      debugPrint('Error de FirebaseAuth: ${e.message}');
+
       setState(() {
-        _errorMessage = e.message;
+        _errorMessage = e.message; // Actualiza el mensaje de error en el estado
       });
+
+      return false;
+    } catch (e) {
+      // Cualquier otro error no relacionado con FirebaseAuth
+      debugPrint('Error inesperado: $e');
+      return false;
     }
   }
 
@@ -61,21 +88,57 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
       body: Row(
         children: [
           // Lado izquierdo: Fondo con animación de texto
-          Expanded(
-            flex: 1,
-            child: Container(
-              color:
-                  AppColors.appBarColor, // Color de fondo de la parte superior
-              child: Center(
-                child: Image.asset(
-                  'lib/assets/pailogo.png', // Ruta de la imagen en los activos
-                  width: 300, // Puedes ajustar el ancho según sea necesario
-                  height: 300, // Puedes ajustar la altura según sea necesario
-                  fit: BoxFit.cover, // Ajusta cómo se muestra la imagen
-                ),
-              ),
-            ),
-          ),
+          // Expanded(
+          //   flex: 1,
+          //   child: Container(
+          //     decoration: BoxDecoration(
+          //       gradient: LinearGradient(
+          //         begin: Alignment.centerLeft,
+          //         end: Alignment.centerRight,
+          //         colors: [AppColors.primaryColor, AppColors.primaryColor],
+          //       ),
+          //     ),
+          //     child: Center(
+          //       child: DefaultTextStyle(
+          //         style: const TextStyle(
+          //           fontSize: 20.0,
+          //           fontFamily: 'Agne',
+          //           color: Colors.white, // Cambia el color del texto aquí
+          //         ),
+          //         child: AnimatedTextKit(
+          //           animatedTexts: [
+          //             TypewriterAnimatedText('Automatizamos tus procesos',
+          //                 speed: Duration(milliseconds: 20)),
+          //             TypewriterAnimatedText(
+          //                 'Optimiza procesos, maximiza resultados',
+          //                 speed: Duration(milliseconds: 20)),
+          //             TypewriterAnimatedText(
+          //                 'La eficiencia es la clave del éxito en la era digital',
+          //                 speed: Duration(milliseconds: 20)),
+          //             TypewriterAnimatedText(
+          //                 'Las empresas que integran IA incrementan un 35% su eficiencia operativa',
+          //                 speed: Duration(milliseconds: 20)),
+          //             TypewriterAnimatedText(
+          //                 'Haz más con menos, gracias a la automatización',
+          //                 speed: Duration(milliseconds: 20)),
+          //             TypewriterAnimatedText(
+          //                 'La innovación tecnológica impulsa tu crecimiento',
+          //                 speed: Duration(milliseconds: 20)),
+          //             TypewriterAnimatedText(
+          //                 'Acelera el progreso de tu empresa con IA',
+          //                 speed: Duration(milliseconds: 20)),
+          //             TypewriterAnimatedText(
+          //                 'El futuro es automatizado, y tu empresa puede estar a la vanguardia',
+          //                 speed: Duration(milliseconds: 20)),
+          //           ],
+          //           onTap: () {
+          //             print("Tap Event");
+          //           },
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
           // Lado derecho: Controles de inicio de sesión
           Expanded(
             flex: 1, // Puedes ajustar el tamaño relativo de los controles
@@ -88,19 +151,36 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       SizedBox(height: 40),
-                      Text(
-                        'Iniciar Sesión',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryColor,
+                      Center(
+                        child: Image.asset(
+                          'lib/assets/pailogo.png', // Ruta de la imagen en los activos
+                          width:
+                              300, // Puedes ajustar el ancho según sea necesario
+                          height:
+                              300, // Puedes ajustar la altura según sea necesario
+                          fit: BoxFit.cover, // Ajusta cómo se muestra la imagen
+                        ),
+                      ),
+                      SizedBox(
+                        height: 40,
+                      ),
+                      Center(
+                        child: Text(
+                          'Área cliente',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryColor,
+                          ),
                         ),
                       ),
                       SizedBox(height: 40),
                       if (_errorMessage != null) ...[
-                        Text(
-                          _errorMessage!,
-                          style: TextStyle(color: Colors.red),
+                        Center(
+                          child: Text(
+                            _errorMessage!,
+                            style: TextStyle(color: Colors.red),
+                          ),
                         ),
                         SizedBox(height: 10),
                       ],
@@ -139,33 +219,79 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
                       ),
                       SizedBox(height: 30),
                       Center(
-                        child: SizedBox(
-                          width: 300,
-                          child: ElevatedButton(
-                            onPressed: _login,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Center(
-                                child: Text(
-                                  'Iniciar Sesión',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(double.infinity,
-                                  50), // Botón ocupa todo el ancho
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                        child: LoadingBtn(
+                          height: 50,
+                          borderRadius: 8,
+                          animate: true,
+                          color: AppColors.primaryColor,
+                          width: MediaQuery.of(context).size.width *
+                              0.10, // Ancho ajustado
+                          loader: Center(
+                            child: Container(
+                              padding: const EdgeInsets.all(
+                                  8), // Reduce el padding si es necesario
+                              child:
+                                  LoadingAnimationWidget.horizontalRotatingDots(
+                                color: Colors.white,
+                                size: 30, // Reducido el tamaño de la animación
                               ),
                             ),
                           ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: const Text(
+                              "Iniciar sesión",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          onTap: (startLoading, stopLoading, btnState) async {
+                            if (btnState == ButtonState.idle) {
+                              startLoading();
+                              // call your network api
+                              await Future.delayed(const Duration(seconds: 2));
+                              var _islogged = await _login();
+                              if (_islogged == true) {
+                                stopLoading();
+                                Navigator.pushNamed(context, '/home');
+                              } else {
+                                stopLoading();
+                              }
+                            }
+                          },
                         ),
                       ),
+
+                      // Center(
+                      //   child: SizedBox(
+                      //     width: 300,
+                      //     child: ElevatedButton(
+                      //       onPressed: _login,
+                      //       child: Padding(
+                      //         padding:
+                      //             const EdgeInsets.symmetric(vertical: 8.0),
+                      //         child: Center(
+                      //           child: Text(
+                      //             'Iniciar Sesión',
+                      //             style: TextStyle(
+                      //               fontSize: 18,
+                      //               color: Colors.white,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //       style: ElevatedButton.styleFrom(
+                      //         minimumSize: Size(double.infinity,
+                      //             50), // Botón ocupa todo el ancho
+                      //         shape: RoundedRectangleBorder(
+                      //           borderRadius: BorderRadius.circular(12),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       SizedBox(height: 20),
                     ],
                   ),
