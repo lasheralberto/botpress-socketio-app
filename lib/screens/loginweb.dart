@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:helloworld/main.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,7 +25,6 @@ class LoginScreenWeb extends StatefulWidget {
 
 class _LoginScreenWebState extends State<LoginScreenWeb>
     with SingleTickerProviderStateMixin {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -43,12 +43,30 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
 
   String? _errorMessage;
 
+  // Función para verificar el estado de autenticación y realizar sign-out si es necesario
+  Future<void> _checkAndSignOut() async {
+    try {
+      User? currentUser = auth.currentUser; // Obtén el usuario actual
+      if (currentUser != null) {
+        // Si el usuario está autenticado, realiza sign-out
+        await auth.signOut();
+        print("Usuario estaba autenticado. Se ha realizado sign-out.");
+      } else {
+        print("No hay usuario autenticado.");
+      }
+    } catch (e) {
+      print("Error al verificar o cerrar sesión: $e");
+    }
+  }
+
   Future<bool> _login() async {
     try {
       debugPrint('Inicio de sesión...');
+      // Verifica si el usuario ya está autenticado y realiza sign-out solo si es el caso
+      await _checkAndSignOut();
 
       // Intento de inicio de sesión con Firebase Authentication
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );

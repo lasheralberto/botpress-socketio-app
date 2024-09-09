@@ -21,16 +21,18 @@ import 'package:helloworld/data/firebase_functions.dart';
 import 'package:helloworld/screens/mainscreen.dart';
 
 final constants = Constants.instance;
+FirebaseAuth auth = FirebaseAuth.instance;
 
 void main() async {
   // Ensure Flutter framework bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase with better error handling
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  //await initializeFirebase();
+
 
   // Run the app
   runApp(RunMainApp());
@@ -60,3 +62,5 @@ class RunMainApp extends StatelessWidget {
     );
   }
 }
+
+

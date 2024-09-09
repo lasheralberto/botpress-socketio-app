@@ -1,5 +1,5 @@
-import 'dart:async'; // Para StreamController
-import 'dart:convert'; // Para decodificación JSON
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:helloworld/data/functions.dart';
 import 'package:helloworld/models/colors.dart';
@@ -7,7 +7,8 @@ import 'package:helloworld/models/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as status;
 
 class ChatScreen extends StatefulWidget {
   final String botid;
@@ -22,7 +23,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   String? selectedConversationId;
   List<Map<String, dynamic>> selectedMessages = [];
-  late IO.Socket socket; // Socket para conexión con el servidor
+  late WebSocketChannel channel; // WebSocketChannel para la conexión WebSocket
   List<dynamic> allConversations = [];
 
   // Crear un StreamController para gestionar los mensajes
@@ -31,78 +32,61 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
-    _connectSocket(); // Conectar al socket
+    _connectWebSocket(); // Conectar al WebSocket
     super.initState();
   }
 
-  void _connectSocket() async {
-    socket = IO.io(
-      //"http://192.168.0.14:1988",
-      Constants.RenderUrlWs, // Reemplaza por tu URL de Socket.IO
-       IO.OptionBuilder()
-        .setTransports(['websocket']) // Fuerza el transporte a WebSocket
-       // .setExtraHeaders({'CustomHead': 'myHeaderValue'}) // Envía el header personalizado
-        .disableAutoConnect() // Deshabilita la autoconexión inicialmente
-        .build(),
-    );
+  void _connectWebSocket() {
+    // Crear un canal WebSocket
+    channel = WebSocketChannel.connect(
+        Uri.parse(Constants.RenderUrlWs)); // Reemplaza con tu URL de WebSocket
 
-    socket.connect();
-
-    // Escuchar eventos de conexión
-    socket.onConnect((_) {
-      print('Conectado al socket');
-      _sendInitialMessage();
+    // Escuchar eventos de mensaje
+    channel.stream.listen((message) {
+      print('Mensaje recibido: $message');
+      var data = json.decode(message);
+      if (data['event'] == 'conversation_data') {
+        setState(() {
+          allConversations = data['data'];
+        });
+        _messagesStreamController.sink.add(allConversations);
+      }
+    }, onError: (error) {
+      print('Error de WebSocket: $error');
+    }, onDone: () {
+      print('WebSocket cerrado');
+      // Intentar reconectar
+      _connectWebSocket();
     });
 
-    // Escuchar evento 'connect_error' para manejar errores de conexión
-    socket.onConnectError((data) {
-      print('Error de conexión: $data');
-    });
-
-    // Escuchar evento 'connect_timeout' para manejar tiempo de espera de conexión
-    socket.onConnectTimeout((data) {
-      print('Tiempo de espera de conexión: $data');
-    });
-
-    // Escuchar evento 'error' para manejar errores del servidor
-    socket.onError((error) {
-      print('Error del socket: $error');
-    });
-
-    // Escuchar evento 'reconnect_attempt' para ver intentos de reconexión
-    socket.onReconnectAttempt((attempt) {
-      print('Intento de reconexión: $attempt');
-    });
-
-    // Escuchar evento 'conversation_data' del servidor
-    socket.on('conversation_data', (data) {
-      print('Datos de conversación recibidos: $data');
-      setState(() {
-        allConversations =
-            data['data']; // Actualizar la lista de conversaciones
-      });
-      _messagesStreamController.sink
-          .add(allConversations); // Añadir los mensajes al stream
-    });
-
-    // Manejar eventos de desconexión
-    socket.onDisconnect((_) => print('Desconectado del socket'));
+    if (widget.botid.isNotEmpty) {
+      _sendInitialMessage(widget.botid);
+    }
   }
 
-  // Función para enviar el mensaje inicial al socket
-  void _sendInitialMessage() {
+  // Función para enviar el mensaje inicial al WebSocket
+  void _sendInitialMessage(String botid) {
+    debugPrint("Sending initial message..");
+
+    // Construir el mapa de datos
     Map<String, String> messageMap = {
       "bearer": "Bearer bp_pat_k0urSciyORrnJO3cRXPrsMdYjPL8eiTQXX4m",
-      "botid": widget.botid,
+      "botid": botid,
       "workspace_id": "wkspace_01HV70DJPN2A123AD5SJ7BEG2B",
+      "integration_id": ""
     };
-    socket.emit('message', json.encode(messageMap)); // Emitir un evento
+
+    // Convertir el mapa a JSON
+    String jsonString = jsonEncode(messageMap);
+    // Enviar el mensaje al servidor
+    channel.sink.add(jsonString);
   }
 
   @override
   void dispose() {
     _messagesStreamController.close(); // Cerrar el StreamController
-    socket.dispose(); // Cerrar la conexión del socket de manera adecuada
+    channel.sink.close(
+        status.goingAway); // Cerrar la conexión WebSocket de manera adecuada
     super.dispose();
   }
 

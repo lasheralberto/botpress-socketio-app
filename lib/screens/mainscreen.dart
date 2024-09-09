@@ -75,7 +75,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
-    _isAllDataLoaded = true;
+    _isAllDataLoaded = false;
     super.initState();
     // Inicializa otras cosas si es necesario
   }
@@ -90,7 +90,7 @@ class _MainScreenState extends State<MainScreen> {
     var bots = await getListBots(context);
     yield bots;
   }
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,13 +107,11 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ];
           },
-          child: FirebaseAuth.instance.currentUser == null
+          child: auth.currentUser == null
               ? CircleAvatar(child: Icon(Icons.person))
               : CircleAvatar(
                   child: Text(
-                    FirebaseAuth.instance.currentUser!.email
-                        .toString()
-                        .substring(0, 1),
+                    auth.currentUser!.email.toString().substring(0, 1),
                   ),
                 ),
         ),
@@ -146,9 +144,16 @@ class _MainScreenState extends State<MainScreen> {
                       _selectedKbid = kbid;
                       constants.setKbId(_selectedKbid.toString());
                     });
+                  }
 
-                    // Fetch and set conversations
-                    //await _fetchAndSetConversations(_selectedBotId.toString());
+                  if (_selectedBotId!.isNotEmpty && _selectedKbid!.isNotEmpty) {
+                    setState(() {
+                      _isAllDataLoaded = true;
+                    });
+                  } else {
+                    setState(() {
+                      _isAllDataLoaded = false;
+                    });
                   }
                 });
               }
@@ -183,10 +188,16 @@ class _MainScreenState extends State<MainScreen> {
                         // Actualiza el estado con el kbid obtenido
                         _selectedKbid = kbid;
                         constants.setKbId(_selectedKbid.toString());
-
-                        // Fetch and set conversations
-                        // await _fetchAndSetConversations(
-                        //     _selectedBotId.toString());
+                      }
+                      if (_selectedBotId!.isNotEmpty &&
+                          _selectedKbid!.isNotEmpty) {
+                        setState(() {
+                          _isAllDataLoaded = true;
+                        });
+                      } else {
+                        setState(() {
+                          _isAllDataLoaded = false;
+                        });
                       }
                     },
                     items: _bots.map<DropdownMenuItem<String>>((bot) {
@@ -210,23 +221,16 @@ class _MainScreenState extends State<MainScreen> {
                 size: 150,
               ),
             )
-          : PDFAttachmentScreen(
-              conversations: _conversations, botid: _selectedBotId ?? ""),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.attach_file),
-      //       label: 'Knowledge Base',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.settings),
-      //       label: 'Ajustes del Bot',
-      //     ),
-      //   ],
-      //   currentIndex: _selectedIndex,
-      //   selectedItemColor: AppColors.accentColor,
-      //   onTap: _onItemTapped,
-      // ),
+          : _selectedBotId!.isEmpty
+              ? Center(
+                  child: LoadingAnimationWidget.bouncingBall(
+                    color: Colors.orange,
+                    size: 150,
+                  ),
+                )
+              : PDFAttachmentScreen(
+                  conversations: _conversations,
+                  botid: _selectedBotId.toString()),
     );
   }
 }
