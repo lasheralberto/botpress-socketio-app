@@ -10,6 +10,7 @@ import 'package:loading_btn/loading_btn.dart';
 import 'package:provider/provider.dart';
 import 'package:helloworld/models/constants.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:flutter/foundation.dart';
 
 class LoginAppWeb extends StatelessWidget {
   @override
@@ -30,8 +31,13 @@ class _LoginScreenWebState extends State<LoginScreenWeb>
 
   @override
   void initState() {
-    _emailController.text = "lasheralberto@gmail.com";
-    _passwordController.text = "lasheralberto";
+    if (kDebugMode) {
+      _emailController.text = "lasheralberto@gmail.com";
+      _passwordController.text = "lasheralberto";
+    } else {
+      _emailController.text = "";
+      _passwordController.text = "";
+    }
 
     super.initState();
   }

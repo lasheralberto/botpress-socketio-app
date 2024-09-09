@@ -138,7 +138,6 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
-          
           Expanded(
             flex: 3,
             child: Card(
@@ -165,37 +164,46 @@ class _ChatScreenState extends State<ChatScreen> {
                                     : Alignment.centerRight,
                                 child: Padding(
                                   padding: const EdgeInsets.all(18.0),
-                                  child: Container(
-                                    margin: EdgeInsets.symmetric(vertical: 5),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: isIncoming
-                                          ? Colors.grey[300]
-                                          : AppColors.primaryColor,
-                                      borderRadius: BorderRadius.circular(16.0),
+                                  child: Card(
+                                    color: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          message['payload']['text'],
-                                          style: TextStyle(
-                                            color: isIncoming
-                                                ? Colors.black
-                                                : Colors.white,
+                                    elevation: 4,
+                                    margin: EdgeInsets.all(16),
+                                    child: Container(
+                                      margin: EdgeInsets.symmetric(vertical: 5),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: isIncoming
+                                            ? Colors.grey[300]
+                                            : AppColors.primaryColor,
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            message['payload']['text'],
+                                            style: TextStyle(
+                                              color: isIncoming
+                                                  ? Colors.black
+                                                  : Colors.white,
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(height: 5),
-                                        Text(
-                                          formatDate(message['createdAt']),
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600],
+                                          SizedBox(height: 5),
+                                          Text(
+                                            formatDate(message['createdAt']),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[600],
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
