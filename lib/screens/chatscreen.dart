@@ -57,6 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
       print('WebSocket cerrado');
       // Intentar reconectar
       _connectWebSocket();
+      
     });
 
     if (widget.botid.isNotEmpty) {
