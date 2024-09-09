@@ -268,11 +268,11 @@ class _PDFAttachmentScreenState extends State<PDFAttachmentScreen> {
           children: [
             Expanded(
               flex: 2,
-              child: ChatScreen(
-                  conversations: widget.conversations, botid: widget.botid),
+              child: ChatScreen(),
             ),
             SizedBox(width: 16), // Espacio entre las columnas
             // Columna Izquierda: Widgets Originales
+            VerticalDivider(width: 1, color: Colors.grey[300]),
             Expanded(
               flex: 1,
               child: Column(

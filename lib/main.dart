@@ -28,12 +28,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase with better error handling
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-
   // Run the app
   runApp(RunMainApp());
 }
@@ -62,5 +59,3 @@ class RunMainApp extends StatelessWidget {
     );
   }
 }
-
-
