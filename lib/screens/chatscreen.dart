@@ -1,14 +1,18 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:helloworld/data/websocket_manager.dart';
 import 'package:helloworld/models/colors.dart';
 import 'package:helloworld/models/constants.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/status.dart' as status;
-import 'package:intl/intl.dart';
-import 'package:helloworld/main.dart';
+import 'package:helloworld/widgets/message_list.dart';
+import 'package:helloworld/data/websocket_manager.dart';
+import 'package:helloworld/widgets/conversations_list.dart';
+import 'package:helloworld/widgets/message_list.dart';
+import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
+  String botid;
+  ChatScreen({required this.botid});
+
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -16,65 +20,81 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   String? selectedConversationId;
   List<Map<String, dynamic>> selectedMessages = [];
-  late WebSocketChannel channel;
+  WebSocketManager?
+      webSocketManager; // Cambiado a un nullable para evitar errores de inicialización.
   List<dynamic> allConversations = [];
 
   final StreamController<List<dynamic>> _messagesStreamController =
       StreamController<List<dynamic>>.broadcast();
 
+  late Constants _constants;
+
   @override
   void initState() {
-    _connectWebSocket();
     super.initState();
   }
 
-  void _connectWebSocket() {
-    var botid = constants.botIdHeader;
-    channel = WebSocketChannel.connect(Uri.parse(Constants.RenderUrlWs));
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-    // Limpiar conversaciones anteriores
-    allConversations.clear();
-    selectedMessages.clear();
-    _messagesStreamController.sink.add(allConversations); // Notificar cambios
+    _constants = Provider.of<Constants>(context, listen: false);
+    _constants.addListener(_onConstantsChanged);
 
-    channel.stream.listen((message) {
-      var data = json.decode(message);
-      if (data['event'] == 'conversation_data') {
-        setState(() {
-          allConversations = data['data'];
-          selectedMessages.clear(); // Limpiar mensajes seleccionados
-        });
-        _messagesStreamController.sink.add(allConversations);
-      }
-    }, onError: (error) {
-      print('Error de WebSocket: $error');
-    }, onDone: () {
-      print('WebSocket cerrado');
-      _connectWebSocket(); // Reconectar al WebSocket
-    });
-
-    if (botid.isNotEmpty) {
-      _sendInitialMessage(botid);
-    }
-  }
-
-  void _sendInitialMessage(String botid) {
-    Map<String, String> messageMap = {
-      "bearer": Constants.authorizationHeader,
-      "botid": botid,
-      "workspace_id": Constants.workspaceIdHeader,
-      "integration_id": ""
-    };
-
-    String jsonString = jsonEncode(messageMap);
-    channel.sink.add(jsonString);
+    // Inicializa el WebSocket por primera vez.
+    _initializeWebSocket();
   }
 
   @override
   void dispose() {
     _messagesStreamController.close();
-    channel.sink.close(status.goingAway);
+    webSocketManager
+        ?.disconnect(); // Asegúrate de desconectar solo si no es nulo.
+    _constants.removeListener(_onConstantsChanged);
     super.dispose();
+  }
+
+  void _onConstantsChanged() {
+    if (mounted) {
+      setState(() {
+        widget.botid = _constants.botIdHeader;
+        _initializeWebSocket(); // Reconecta el WebSocket cuando cambie el botid.
+      });
+    }
+  }
+
+  void _initializeWebSocket() {
+    if (webSocketManager != null) {
+      webSocketManager!
+          .disconnect(); // Desconectar si ya existe un WebSocketManager.
+    }
+
+    // Crear un nuevo WebSocketManager solo si `botid` no es nulo o vacío.
+    if (widget.botid.isNotEmpty) {
+      webSocketManager = WebSocketManager(
+        botid: widget.botid,
+        onNewData: (data) {
+          setState(() {
+            allConversations = [];
+            allConversations = data;
+            selectedMessages.clear();
+          });
+          _messagesStreamController.sink.add(allConversations);
+        },
+        onError: (error) => print('Error de WebSocket: $error'),
+        onDone: _reconnectWebSocket,
+      );
+
+      webSocketManager!.connect(widget.botid);
+    }
+  }
+
+  void _reconnectWebSocket() {
+    print('WebSocket cerrado');
+    if (webSocketManager != null) {
+      webSocketManager!.connect(
+          widget.botid); // Reconectar solo si el WebSocketManager no es nulo.
+    }
   }
 
   void selectConversation(
@@ -86,18 +106,13 @@ class _ChatScreenState extends State<ChatScreen> {
             conversation['conversation'] == conversationId)['messages'],
       );
 
-      // Ordenar mensajes cronológicamente
+      // Ordenar mensajes cronológicamente.
       selectedMessages.sort((a, b) {
         DateTime dateA = DateTime.parse(a['createdAt']);
         DateTime dateB = DateTime.parse(b['createdAt']);
         return dateA.compareTo(dateB);
       });
     });
-  }
-
-  String formatDate(String dateStr) {
-    DateTime dateTime = DateTime.parse(dateStr);
-    return DateFormat('dd/MM/yyyy HH:mm:ss').format(dateTime);
   }
 
   @override
@@ -108,119 +123,15 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Expanded(
             flex: 2,
-            child: Card(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 4,
-              margin: EdgeInsets.all(16),
-              child: StreamBuilder<List<dynamic>>(
-                stream: _messagesStreamController.stream,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(
-                        child: Text('No hay conversaciones disponibles'));
-                  }
-
-                  return ListView.separated(
-                    separatorBuilder: (context, index) => Divider(),
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(snapshot.data![index]['conversation']),
-                        subtitle: Text(
-                            'Integración: ${snapshot.data![index]['integration_name']}'),
-                        onTap: () => selectConversation(
-                          snapshot.data![index]['conversation'],
-                          List<Map<String, dynamic>>.from(snapshot.data!),
-                        ),
-                        selected: selectedConversationId ==
-                            snapshot.data![index]['conversation'],
-                      );
-                    },
-                  );
-                },
-              ),
+            child: ConversationList(
+              messagesStream: _messagesStreamController.stream,
+              selectedConversationId: selectedConversationId,
+              onConversationSelected: selectConversation,
             ),
           ),
           Expanded(
             flex: 3,
-            child: Card(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 4,
-              margin: EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: selectedMessages.isNotEmpty
-                        ? ListView.builder(
-                            itemCount: selectedMessages.length,
-                            itemBuilder: (context, index) {
-                              var message = selectedMessages[index];
-                              bool isIncoming =
-                                  message['direction'] == 'incoming';
-
-                              return Align(
-                                alignment: isIncoming
-                                    ? Alignment.centerLeft
-                                    : Alignment.centerRight,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(18.0),
-                                  child: Card(
-                                    color: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 4,
-                                    margin: EdgeInsets.all(16),
-                                    child: Container(
-                                      margin: EdgeInsets.symmetric(vertical: 5),
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 8),
-                                      decoration: BoxDecoration(
-                                        color: isIncoming
-                                            ? Colors.grey[300]
-                                            : AppColors.primaryColor,
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            message['payload']['text'],
-                                            style: TextStyle(
-                                              color: isIncoming
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                            ),
-                                          ),
-                                          SizedBox(height: 5),
-                                          Text(
-                                            formatDate(message['createdAt']),
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          )
-                        : Center(child: Text('Selecciona una conversación')),
-                  ),
-                ],
-              ),
-            ),
+            child: MessageList(selectedMessages: selectedMessages),
           ),
         ],
       ),

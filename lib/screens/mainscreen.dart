@@ -175,6 +175,7 @@ class _MainScreenState extends State<MainScreen> {
                         return;
                       }
 
+                      // Actualiza los datos relacionados con el bot seleccionado
                       setState(() {
                         _selectedBotId = selectedBot['id'];
                         _selectedBotName = selectedBot['name'];
@@ -186,9 +187,13 @@ class _MainScreenState extends State<MainScreen> {
 
                       if (kbid != null) {
                         // Actualiza el estado con el kbid obtenido
-                        _selectedKbid = kbid;
-                        constants.setKbId(_selectedKbid.toString());
+                        setState(() {
+                          _selectedKbid = kbid;
+                          constants.setKbId(_selectedKbid.toString());
+                        });
                       }
+
+                      // Verifica si todos los datos necesarios están cargados
                       if (_selectedBotId!.isNotEmpty &&
                           _selectedKbid!.isNotEmpty) {
                         setState(() {
@@ -199,6 +204,10 @@ class _MainScreenState extends State<MainScreen> {
                           _isAllDataLoaded = false;
                         });
                       }
+
+                      // Refresca la pantalla de ChatScreen con el nuevo botid
+                      setState(
+                          () {}); // Llama a setState para forzar la reconstrucción
                     },
                     items: _bots.map<DropdownMenuItem<String>>((bot) {
                       return DropdownMenuItem<String>(
@@ -229,8 +238,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 )
               : PDFAttachmentScreen(
-                  conversations: _conversations,
-                  botid: _selectedBotId.toString()),
+                  conversations: _conversations, botid: constants.botIdHeader),
     );
   }
 }
@@ -268,7 +276,7 @@ class _PDFAttachmentScreenState extends State<PDFAttachmentScreen> {
           children: [
             Expanded(
               flex: 2,
-              child: ChatScreen(),
+              child: ChatScreen(botid: widget.botid),
             ),
             SizedBox(width: 16), // Espacio entre las columnas
             // Columna Izquierda: Widgets Originales
