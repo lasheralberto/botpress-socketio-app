@@ -33,6 +33,8 @@ class _ChatScreenState extends State<ChatScreen> {
     channel = WebSocketChannel.connect(Uri.parse(Constants.RenderUrlWs));
 
     channel.stream.listen((message) {
+      allConversations = [];
+
       var data = json.decode(message);
       if (data['event'] == 'conversation_data') {
         setState(() {
