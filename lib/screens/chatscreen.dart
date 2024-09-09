@@ -32,13 +32,17 @@ class _ChatScreenState extends State<ChatScreen> {
     var botid = constants.botIdHeader;
     channel = WebSocketChannel.connect(Uri.parse(Constants.RenderUrlWs));
 
-    channel.stream.listen((message) {
-      allConversations = [];
+    // Limpiar conversaciones anteriores
+    allConversations.clear();
+    selectedMessages.clear();
+    _messagesStreamController.sink.add(allConversations); // Notificar cambios
 
+    channel.stream.listen((message) {
       var data = json.decode(message);
       if (data['event'] == 'conversation_data') {
         setState(() {
           allConversations = data['data'];
+          selectedMessages.clear(); // Limpiar mensajes seleccionados
         });
         _messagesStreamController.sink.add(allConversations);
       }
@@ -46,7 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
       print('Error de WebSocket: $error');
     }, onDone: () {
       print('WebSocket cerrado');
-      _connectWebSocket();
+      _connectWebSocket(); // Reconectar al WebSocket
     });
 
     if (botid.isNotEmpty) {
